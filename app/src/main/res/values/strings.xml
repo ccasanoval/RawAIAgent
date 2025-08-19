@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">RawAgent</string>
+    <string name="prompt">Escribe…</string>
+    <string name="go">Vamos</string>
+    <string name="talk">Habla…</string>
+</resources>
