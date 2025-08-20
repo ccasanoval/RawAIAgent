@@ -3,7 +3,6 @@ package com.cesoft.rawagent.remote
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import com.cesoft.rawagent.BuildConfig
 import com.cesoft.rawagent.location.LocationProvider
@@ -11,10 +10,8 @@ import com.cesoft.rawagent.remote.entity.GroqDto
 import com.cesoft.rawagent.remote.result.NetworkResultCallAdapterFactory
 import com.google.gson.GsonBuilder
 import okhttp3.Cache
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -26,7 +23,7 @@ class RemoteDataSource(
     private val context: Context,
     private val httpInterceptor: HttpInterceptor
 ) {
-    private val apiService: ApiService = getRetrofit(API).create(ApiService::class.java)
+    private val apiService: ApiServiceLLM = getRetrofit(API).create(ApiServiceLLM::class.java)
     private val apiServiceGeo: ApiServiceGeo = getRetrofit(API_GEO).create(ApiServiceGeo::class.java)
 
     init {
@@ -90,12 +87,21 @@ class RemoteDataSource(
         return null
     }
     suspend fun prompt(userPrompt: String): Result<String> {
+        // Current address by device geoposition
         val address = getAddress()
+
         //val model = "openai/gpt-oss-20b"
         //val model = "llama-3.3-70b-versatile"
         //val model = "openai/gpt-oss-120b"
         //val model = "compound-beta"
         val model = "compound-beta"
+
+        val searchSettings = """
+        "search_settings": {
+            "include_domains": ["geoportalgasolineras.es"]
+        },
+        """.trimIndent()
+
         val assistantPrompt = """
         You are a helpful assistant for finding cheap gas stations.
         Respond briefly with the name and address of the cheaper gas station.
@@ -103,6 +109,31 @@ class RemoteDataSource(
         If the user do not talk about a concrete location, or talks about the current location he is at,
         use the address $address as the location for the search.
         """.trimIndent().replace("\n", "")
+
+        val tools = """
+        "tools": [{
+            "type": "function",
+            "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather in a given location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA"
+                        },
+                        "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"]
+                    }
+                },
+                "required": ["location"]
+            }
+        }],
+        "tool_choice": "auto"
+        """.trimIndent()
+
         val prompt =
             """
             {
