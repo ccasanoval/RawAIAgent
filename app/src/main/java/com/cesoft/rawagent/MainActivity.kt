@@ -28,17 +28,6 @@ class MainActivity : ComponentActivity() {
         android.util.Log.e("AA", "-----------"+BuildConfig.API_KEY)
         enableEdgeToEdge()
         permissionContent()
-        //setContent {
-//            RawAgentTheme {
-//                //Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                Surface(
-//                    modifier = Modifier.fillMaxSize().safeDrawingPadding(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    MainScreen()
-//                }
-//            }
-        //}
     }
 
     private fun permissionContent() {

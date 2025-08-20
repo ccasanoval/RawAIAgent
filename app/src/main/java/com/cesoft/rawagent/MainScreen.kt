@@ -2,9 +2,12 @@ package com.cesoft.rawagent
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.Settings
 import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,6 +40,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cesoft.rawagent.location.GpsUtil
 import kotlinx.coroutines.Delay
 import kotlinx.coroutines.delay
 import java.util.Locale
@@ -48,9 +52,9 @@ fun MainScreen(vm: MainViewModel = viewModel()) {
 }
 
 @Composable
-fun Q(onGo: (String) -> Unit) {
+fun SpeechRecognizer(onGo: (String) -> Unit) {
     val context = LocalContext.current
-    var prompt by remember { mutableStateOf("") }
+    //var prompt by remember { mutableStateOf("") }
 
     // Launcher for speech recognition
     val speechRecognizerLauncher = rememberLauncherForActivityResult(
@@ -59,7 +63,7 @@ fun Q(onGo: (String) -> Unit) {
             val spokenText =
                 result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
             if (spokenText != null) {
-                prompt = spokenText  // Update prompt with recognized text
+                //prompt = spokenText
                 android.util.Log.e("AAA", "-*---------- $spokenText")
                 onGo(spokenText)
             } else {
@@ -99,11 +103,11 @@ fun Q(onGo: (String) -> Unit) {
 
 
 @Composable
-fun MainScreen(uiState: UiState, onGo: (String) -> Unit) {
-    var prompt by rememberSaveable { mutableStateOf("") }
-    val context = LocalContext.current
+fun MainScreen(uiState: UiState, onGo: (String) -> Unit, test: Boolean = false) {
+    if(!test) GpsUtil.checkGpsOn(LocalContext.current)
+    var prompt by rememberSaveable { mutableStateOf("Dime la gasolinera que tenga hoy la gasolina 95 más barata cerca de aqui, sin contar promociones o descuentos") }
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item { Q(onGo) }
+        item { SpeechRecognizer(onGo) }
         item { Spacer(Modifier.size(20.dp)) }
         item {
             TextField(
@@ -124,9 +128,6 @@ fun MainScreen(uiState: UiState, onGo: (String) -> Unit) {
                 item { CircularProgressIndicator(modifier = Modifier.fillMaxWidth()) }
             }
             is UiState.Success -> {
-                if(uiState.outputText.isNotBlank()) {
-
-                }
                 item {
                     Text(
                         text = uiState.outputText,
@@ -165,5 +166,5 @@ private class UiStateProvider: PreviewParameterProvider<UiState> {
 @Preview
 @Composable
 private fun MainScreen_Preview(@PreviewParameter(UiStateProvider ::class) value: UiState) {
-    MainScreen(value) {}
+    MainScreen(uiState = value, onGo = {}, test = true)
 }
