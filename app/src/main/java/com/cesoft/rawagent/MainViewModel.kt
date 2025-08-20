@@ -6,6 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cesoft.rawagent.remote.HttpInterceptor
 import com.cesoft.rawagent.remote.RemoteDataSource
+import io.github.vyfor.groqkt.GroqClient
+import io.github.vyfor.groqkt.GroqModel
+import io.github.vyfor.groqkt.api.GroqResponse
+import io.github.vyfor.groqkt.api.audio.AudioResponseFormat
+import io.github.vyfor.groqkt.api.chat.ChatCompletion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,8 +45,12 @@ class MainViewModel : ViewModel() {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                //delay(1000L)
-                val res = ds.prompt(prompt)
+                /// Groq Library
+                val res = ds.promptKt(prompt)
+
+                /// Groq Raw http call
+                //val res = ds.promptRaw(prompt)
+
                 val resValue = res.getOrNull()
                 if(resValue != null) {
                     Log.e("MainVM", "onGo------------ok $resValue")

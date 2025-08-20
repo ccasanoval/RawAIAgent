@@ -9,6 +9,10 @@ import com.cesoft.rawagent.location.LocationProvider
 import com.cesoft.rawagent.remote.entity.GroqDto
 import com.cesoft.rawagent.remote.result.NetworkResultCallAdapterFactory
 import com.google.gson.GsonBuilder
+import io.github.vyfor.groqkt.GroqClient
+import io.github.vyfor.groqkt.GroqModel
+import io.github.vyfor.groqkt.api.GroqResponse
+import io.github.vyfor.groqkt.api.chat.ChatCompletion
 import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -86,7 +90,46 @@ class RemoteDataSource(
         }
         return null
     }
-    suspend fun prompt(userPrompt: String): Result<String> {
+
+    suspend fun promptKt(userPrompt: String): Result<String> {
+        val address = getAddress()
+        val assistantPrompt = """
+        You are a helpful assistant for finding cheap gas stations.
+        Respond briefly with the name and address of the cheaper gas station.
+        Respond also with the price for the product the user is asking for, or gasoline 95 if he does not indicates one.
+        If the user do not talk about a concrete location, or talks about the current location he is at,
+        use the address $address as the location for the search.
+        """.trimIndent().replace("\n", "")
+        val client = GroqClient(BuildConfig.API_KEY) {
+            defaults {
+                chatCompletion {
+                    model = GroqModel.LLAMA_3_8B_8192
+                }
+            }
+        }
+        val response: Result<GroqResponse<ChatCompletion>> = client.chat {
+            model = GroqModel.LLAMA_3_8B_8192
+            messages {
+                system(assistantPrompt)
+                text(userPrompt)
+            }
+        }
+        android.util.Log.e("AAA", "--------------0- $response")
+        return if(response.isSuccess) {
+            val res = response.getOrNull()?.data?.choices?.firstOrNull()?.message?.content ?: ""
+            if(res.isNotBlank()) {
+                android.util.Log.e("AAA", "--------------A- $res")
+                Result.success(res)
+            } else {
+                Result.failure(response.exceptionOrNull() ?: Exception("Unknown"))
+            }
+        }
+        else {
+            Result.failure(response.exceptionOrNull() ?: Exception("Unknown"))
+        }
+    }
+
+    suspend fun promptRaw(userPrompt: String): Result<String> {
         // Current address by device geoposition
         val address = getAddress()
 

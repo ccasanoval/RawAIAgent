@@ -106,55 +106,55 @@ data class StationDataDto(
     @SerializedName("IDCCAA")
     val idState: String?,
 ) {
-    fun toEntity() = Station(
-        id = idStation?.toInt() ?: 0,
-        zipCode = zipCode ?: "",
-        address = address ?: "",
-        city = city ?: "",
-        county = county ?: "",
-        state = state ?: "",
-        location = toLocation(),
-        hours = hours ?: "",
-        title = title ?: "",
-        prices = toPrices(),
-    )
-
-    private fun toLocation(): Location {
-        try {
-            val lat = latitude?.replace(',', '.')?.toDouble() ?: 0.0
-            val lon = longitude?.replace(',', '.')?.toDouble() ?: 0.0
-            return Location(lat, lon)
-        }
-        catch (e: Exception) {
-            return Location(0.0, 0.0)
-        }
-    }
-
-    private fun toPrices(): Prices {
-        var tmp: Float? = null
-
-        var g95: Float? = g95e5?.replace(',','.')?.toFloatOrNull()
-        tmp = g95e10?.replace(',','.')?.toFloatOrNull()
-        if(g95 == null) g95 = tmp
-        else if(tmp != null && tmp < g95) g95 = tmp
-        tmp = g95e5P?.replace(',','.')?.toFloatOrNull()
-        if(g95 == null) g95 = tmp
-        else if(tmp != null && tmp < g95) g95 = tmp
-
-        var g98: Float? = g98e10?.replace(',','.')?.toFloatOrNull()
-        tmp = g98e5?.replace(',','.')?.toFloatOrNull()
-        if(g98 == null) g98 = tmp
-        else if(tmp != null && tmp < g98) g98 = tmp
-
-        val goa = goA?.replace(',','.')?.toFloatOrNull()
-        val gob = goB?.replace(',','.')?.toFloatOrNull()
-        val goc = goC?.replace(',','.')?.toFloatOrNull()
-        val goap = goAP?.replace(',','.')?.toFloatOrNull()
-        val glp = glp?.replace(',','.')?.toFloatOrNull()
-
-        //android.util.Log.e("Prices", "Prices------------${this.title} : ${this.g95e5} / ${this.g95e10} / ${this.g95e5P} == $g95 \n\n")
-        return Prices(G95 = g95, G98 = g98, GOA = goa, GOB = gob, GOC = goc, GOAP = goap, GLP = glp)
-    }
+//    fun toEntity() = Station(
+//        id = idStation?.toInt() ?: 0,
+//        zipCode = zipCode ?: "",
+//        address = address ?: "",
+//        city = city ?: "",
+//        county = county ?: "",
+//        state = state ?: "",
+//        location = toLocation(),
+//        hours = hours ?: "",
+//        title = title ?: "",
+//        prices = toPrices(),
+//    )
+//
+//    private fun toLocation(): Location {
+//        try {
+//            val lat = latitude?.replace(',', '.')?.toDouble() ?: 0.0
+//            val lon = longitude?.replace(',', '.')?.toDouble() ?: 0.0
+//            return Location(lat, lon)
+//        }
+//        catch (e: Exception) {
+//            return Location(0.0, 0.0)
+//        }
+//    }
+//
+//    private fun toPrices(): Prices {
+//        var tmp: Float? = null
+//
+//        var g95: Float? = g95e5?.replace(',','.')?.toFloatOrNull()
+//        tmp = g95e10?.replace(',','.')?.toFloatOrNull()
+//        if(g95 == null) g95 = tmp
+//        else if(tmp != null && tmp < g95) g95 = tmp
+//        tmp = g95e5P?.replace(',','.')?.toFloatOrNull()
+//        if(g95 == null) g95 = tmp
+//        else if(tmp != null && tmp < g95) g95 = tmp
+//
+//        var g98: Float? = g98e10?.replace(',','.')?.toFloatOrNull()
+//        tmp = g98e5?.replace(',','.')?.toFloatOrNull()
+//        if(g98 == null) g98 = tmp
+//        else if(tmp != null && tmp < g98) g98 = tmp
+//
+//        val goa = goA?.replace(',','.')?.toFloatOrNull()
+//        val gob = goB?.replace(',','.')?.toFloatOrNull()
+//        val goc = goC?.replace(',','.')?.toFloatOrNull()
+//        val goap = goAP?.replace(',','.')?.toFloatOrNull()
+//        val glp = glp?.replace(',','.')?.toFloatOrNull()
+//
+//        //android.util.Log.e("Prices", "Prices------------${this.title} : ${this.g95e5} / ${this.g95e10} / ${this.g95e5P} == $g95 \n\n")
+//        return Prices(G95 = g95, G98 = g98, GOA = goa, GOB = gob, GOC = goc, GOAP = goap, GLP = glp)
+//    }
 
     companion object {
 

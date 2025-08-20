@@ -80,4 +80,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // Groq for kotlin: For calling tools
+    implementation(libs.groq.kt)
+    implementation(libs.ktor.client.android)
 }
